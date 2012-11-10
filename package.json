@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "grunt-browserify": "~0.1.x",
-    "grunt": "~0.4.x",
+    "grunt": "~0.3.x",
     "traverse": "~0.6.x",
     "browserify": "~1.15.x",
     "eventemitter2": "~0.4.x",
@@ -37,7 +37,7 @@
     "testling": "~0.2.x"
   },
   "scripts": {
-    "postinstall": "grunt install",
+    "postinstall": "npm install grunt-browserify;grunt install",
     "test": "grunt test"
   },
   "engines": {
