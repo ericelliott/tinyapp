@@ -1,5 +1,5 @@
 (function(){
-/*! tinyapp - v0.0.1 - 2012-11-09
+/*! tinyapp - v0.0.1 - 2012-11-20
  * Copyright (c) 2012 Eric Elliott;
  * Licensed under the  license */
 
@@ -784,8 +784,33 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   deferred = function deferred() {
     return new $.Deferred();
   },
+  resolved = deferred().resolve().promise(),
+  rejected = deferred().reject().promise(),
+  when = $.when,
 
   renderReady = deferred(),
+
+  setModule = function setModule(cursor, location, value) {
+    var tree = location.split('.'),
+      key = tree.shift();
+
+    while (tree.length) {
+      if (cursor[key] !== undefined) {
+        cursor = cursor[key];
+      } else {
+        cursor = cursor[key] = {};
+      }
+      key = tree.shift();
+    }
+
+    if (cursor[key] === undefined) {
+      cursor[key] = value;
+      returnValue = true;
+    } else {
+      returnValue = false;
+    }
+    return returnValue;
+  },  
 
   trigger = function trigger() {
     var args = [].slice.call(arguments);
@@ -804,30 +829,36 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   init = function init(options) {
     if (options.environment) {
       app.environment = options.environment;
+      app.options = options.options;
     }
   },
 
   register = function register(ns, api) {
-    if (!app[ns]) {
-      app[ns] = api;
-    }
+    var newModule = setModule(this, ns, api);
+
+    return (newModule) ? new Error('Module exists: ', ns): this;
   };
 
 api = extend(app, {
+  '$': $,
   init: init,
   deferred: deferred,
   register: register,
   events: events,
   trigger: trigger,
-  on: on
+  on: on,
+  resolved: resolved,
+  rejected: rejected,
+  when: when,
+  renderReady: function (cb) {
+    renderReady.done.call(renderReady, cb);
+  }
 });
-
 
 // Emit render_ready event when renderReady resolves.
 renderReady.done(function () {
   app.trigger('render_ready');
 });
-
 
 $(document).ready(function () {
   // TODO: change this to pageReady when beforeRender
@@ -13232,45 +13263,101 @@ require.define("/node_modules/backbone-browserify/lib/backbone-browserify.js",fu
 
 require.define("/test-src/test.js",function(require,module,exports,__dirname,__filename,process){var app = require('../src/tinyapp');
 
-app.init({version: '0.0.1', environment: {test: 'test'}});
 
-test('sanity', function () {
-  ok(true, 'Assertions should run.');
-});
+app.$(document).ready(function () {
 
-test('app', function () {
-  ok(app,'app should exist');
-});
+  app.init({version: '0.0.1', environment: {test: 'test'}});
 
-test('app.events on / trigger', function () {
-  stop();
-  app.on('a', function () {
-    ok(true, 'app.trigger should cause app.on callback to fire');
-    start();
+  (function (app) {
+    var whenAppInitFinished = app.deferred();
+
+    app.on('app_initialized', function () {
+      whenAppInitFinished.resolve();
+    });
+
+    app.init({
+      info: {
+        name: name,
+        version: '0.0.1'
+      },
+      environment: {
+        debug: true,
+        test: 'test'
+      },
+      options: {
+        beforeRender: [whenAppInitFinished.promise()],
+        optionAdded: true
+      }
+    });
+
+  }(app));
+
+  test('Tinyapp core', function () {
+    ok(app,
+      'app should exist.');
+
+    ok(app.environment && app.environment.debug,
+      'Environment should load (triggered by app.js).');
+
+    ok(app.options.optionAdded,
+      'Options should get added to app object.');
   });
-  app.trigger('a');
-});
+
+  test('Namespacing', function () {
+    app.register('namespaceTest', true);
+    equal(app.namespaceTest, true,
+      '.register() should assign namespace.');
+
+    app.register('namespaceTest', 'fail');
+    equal(app.namespaceTest, true,
+      '.register() should not allow duplicate registrations.');
+  });
 
 
-/*
-test('render ready', function () {
-  stop();
-  var render = function render(timedout) {
-    var msg = 'render_ready event should be fired on startup';
-    if (timedout) {
-      ok(false, msg);
-    } else {
-      ok(true, msg);
-    }
-    start();
-  };
-  app.on('render_ready', render);
-  setTimeout(function () {
-    render('timedout');
-    start();
-  }, 1000);
+  test('Deferred utilities', function () {
+    
+    equal(app.resolved.state(), 'resolved',
+      'app.resolved should be a resolved promise.');
+    equal(app.rejected.state(), 'rejected',
+      'app.rejected should be a rejected promise.');
+    ok(app.when(app.resolved).state(), 'resolved',
+      'app.when() should be available.');
+
+  });
+
+  test('app.events on / trigger', function () {
+    stop();
+    app.on('a', function () {
+      ok(true, 'app.trigger should cause app.on callback to fire');
+      start();
+    });
+    app.trigger('a');
+  });
+
+  test('render ready', function () {
+    stop();
+    var render = function render(timedout) {
+      var msg = 'renderReady callback should fire' +
+        ' when the app is ready to render.';
+      if (timedout) {
+        ok(false, msg);
+      } else {
+        ok(true, msg);
+      }
+      start();
+    };
+    app.renderReady(render);
+
+    setTimeout(function () {
+      render('timedout');
+      start();
+    }, 2000);
+
+  });
+
 });
-*/});
+
+});
 require("/test-src/test.js");
 
 })();

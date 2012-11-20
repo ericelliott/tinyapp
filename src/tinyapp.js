@@ -8,8 +8,33 @@ var $ = require('jquery-browserify'),
   deferred = function deferred() {
     return new $.Deferred();
   },
+  resolved = deferred().resolve().promise(),
+  rejected = deferred().reject().promise(),
+  when = $.when,
 
   renderReady = deferred(),
+
+  setModule = function setModule(cursor, location, value) {
+    var tree = location.split('.'),
+      key = tree.shift();
+
+    while (tree.length) {
+      if (cursor[key] !== undefined) {
+        cursor = cursor[key];
+      } else {
+        cursor = cursor[key] = {};
+      }
+      key = tree.shift();
+    }
+
+    if (cursor[key] === undefined) {
+      cursor[key] = value;
+      returnValue = true;
+    } else {
+      returnValue = false;
+    }
+    return returnValue;
+  },  
 
   trigger = function trigger() {
     var args = [].slice.call(arguments);
@@ -28,30 +53,36 @@ var $ = require('jquery-browserify'),
   init = function init(options) {
     if (options.environment) {
       app.environment = options.environment;
+      app.options = options.options;
     }
   },
 
   register = function register(ns, api) {
-    if (!app[ns]) {
-      app[ns] = api;
-    }
+    var newModule = setModule(this, ns, api);
+
+    return (newModule) ? new Error('Module exists: ', ns): this;
   };
 
 api = extend(app, {
+  '$': $,
   init: init,
   deferred: deferred,
   register: register,
   events: events,
   trigger: trigger,
-  on: on
+  on: on,
+  resolved: resolved,
+  rejected: rejected,
+  when: when,
+  renderReady: function (cb) {
+    renderReady.done.call(renderReady, cb);
+  }
 });
-
 
 // Emit render_ready event when renderReady resolves.
 renderReady.done(function () {
   app.trigger('render_ready');
 });
-
 
 $(document).ready(function () {
   // TODO: change this to pageReady when beforeRender

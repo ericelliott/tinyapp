@@ -1,6 +1,5 @@
 {
   "name": "tinyapp",
-  "title": "tinyapp",
   "version": "0.0.1",
   "description": "A minimal, modular, client side application framework.",
   "author": {
@@ -24,20 +23,18 @@
     "dist": "./dist"
   },
   "dependencies": {
-    "grunt-browserify": "~0.1.x",
-    "grunt": "~0.3.x",
-    "traverse": "~0.6.x",
-    "browserify": "~1.15.x",
     "eventemitter2": "~0.4.x",
     "jquery-browserify": "~1.8.x",
     "underscore": "~1.3.x",
     "backbone-browserify": "~0.9.x"
   },
   "devDependencies": {
-    "testling": "~0.2.x"
+    "grunt-browserify": "~0.1.x",
+    "grunt": "~0.3.x",
+    "traverse": "~0.6.x",
+    "browserify": "~1.15.x"
   },
   "scripts": {
-    "postinstall": "npm install grunt-browserify;grunt install",
     "test": "grunt test"
   },
   "engines": {
