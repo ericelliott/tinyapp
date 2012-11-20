@@ -8,6 +8,8 @@ Need help using CommonJS in the browser? Check out [Browserify](https://github.c
 
 Tinyapp exposes .loadReady() and .renderReady() methods so you can use .load() and .render() for whatever you want. Inside your module:
 
+    var app = require('tinyapp');
+
     var api = new Backbone.View.extend({
       render: function render() {
         // do stuff to dom
