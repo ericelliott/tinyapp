@@ -1,12 +1,12 @@
 {
   "name": "tinyapp",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "A minimal, modular, client side application framework.",
   "author": {
     "name": "Eric Elliott",
     "url": "http://ericleads.com"
   },
-  "main": "./dist/tinyapp.js",
+  "main": "./src/tinyapp.js",
   "keywords": [
     "client side",
     "application framework",
