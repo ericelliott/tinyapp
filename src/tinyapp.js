@@ -13,6 +13,7 @@ var $ = require('jquery-browserify'),
   when = $.when,
 
   renderReady = deferred(),
+  loadReady = deferred(),
 
   setModule = function setModule(cursor, location, value) {
     var tree = location.split('.'),
@@ -55,6 +56,10 @@ var $ = require('jquery-browserify'),
       app.environment = options.environment;
       app.options = options.options;
     }
+
+    // will pass global load and render blockers
+    // in here eventually.. for now, just resolve.
+    loadReady.resolve();
   },
 
   register = function register(ns, api) {
@@ -76,6 +81,9 @@ api = extend(app, {
   when: when,
   renderReady: function (cb) {
     renderReady.done.call(renderReady, cb);
+  },
+  loadReady: function (cb) {
+    loadReady.done.call(renderReady, cb);
   }
 });
 
