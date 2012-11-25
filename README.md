@@ -8,7 +8,7 @@ Tinyapp is a simple event-driven client-side JavaScript application architecture
 * Lifecycle Hooks
 * Deferreds / Promises
 
-# **View the slideshow: ["Introducing Applitude: Simple Module Management"](https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&start=false&loop=false&delayms=10000)**
+Tinyapp is based on Applitude: Simple module management.  **View the slideshow: ["Introducing Applitude: Simple Module Management"](https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&start=false&loop=false&delayms=10000)**
 
 **Status** - Developer preview (stick to tested, documented features for best results). [![Build Status](https://secure.travis-ci.org/dilvie/tinyapp.png)](http://travis-ci.org/dilvie/tinyapp)
 
