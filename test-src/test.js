@@ -3,41 +3,15 @@ var app = require('../src/tinyapp');
 
 app.$(document).ready(function () {
 
-  app.init({version: '0.0.1', environment: {test: 'test'}});
-
-  (function (app) {
-    var whenAppInitFinished = app.deferred();
-
-    app.on('app_initialized', function () {
-      whenAppInitFinished.resolve();
-    });
-
-    app.init({
-      info: {
-        name: name,
-        version: '0.0.1'
-      },
-      environment: {
-        debug: true,
-        test: 'test'
-      },
-      options: {
-        beforeRender: [whenAppInitFinished.promise()],
-        optionAdded: true
-      }
-    });
-
-  }(app));
+  app.init({environment: {test: 'test'}});
 
   test('Tinyapp core', function () {
     ok(app,
       'app should exist.');
 
-    ok(app.environment && app.environment.debug,
+    equal(app.environment && app.environment.test,
+      'test',
       'Environment should load (triggered by app.js).');
-
-    ok(app.options.optionAdded,
-      'Options should get added to app object.');
   });
 
   test('Namespacing', function () {
@@ -69,6 +43,32 @@ app.$(document).ready(function () {
       start();
     });
     app.trigger('a');
+  });
+
+  test('app.events off', function () {
+    var counter = 0,
+      cb = function cb() {
+        counter++;
+      };
+    stop();
+
+    // Attach event listener
+    app.on('b', cb);
+
+    // Fire test event
+    app.trigger('b');
+
+    // Detach event listener
+    app.off('b', cb);
+
+    // Fire another test event
+    app.trigger('b');
+
+    equal(counter, 1,
+      'Events should not trigger callbacks after the ' +
+      'listener has been detached with .off().');
+
+    start();
   });
 
   test('render ready', function () {

@@ -1,5 +1,5 @@
 (function(){
-/*! tinyapp - v0.0.1 - 2012-11-20
+/*! tinyapp - v0.0.3 - 2012-11-25
  * Copyright (c) 2012 Eric Elliott;
  * Licensed under the  license */
 
@@ -818,10 +818,14 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
     events.emit.apply(events, arguments);
   },
 
-  // create selective mixInto method for these
   on = function on() {
     var args = [].slice.call(arguments);
     events.on.apply(events, arguments);    
+  },
+
+  off = function off() {
+    var args = [].slice.call(arguments);
+    events.off.apply(events, arguments);    
   },
 
   app = {},
@@ -830,7 +834,10 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   init = function init(options) {
     if (options.environment) {
       app.environment = options.environment;
-      app.options = options.options;
+    }
+
+    if (options.beforeRender) {
+      whenRenderReady = options.beforeRender;
     }
 
     // will pass global load and render blockers
@@ -846,12 +853,15 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
 
 api = extend(app, {
   '$': $,
+  get: $.get,
+  ajax: $.ajax,
   init: init,
   deferred: deferred,
   register: register,
   events: events,
   trigger: trigger,
   on: on,
+  off: off,
   resolved: resolved,
   rejected: rejected,
   when: when,
@@ -13274,41 +13284,15 @@ require.define("/test-src/test.js",function(require,module,exports,__dirname,__f
 
 app.$(document).ready(function () {
 
-  app.init({version: '0.0.1', environment: {test: 'test'}});
-
-  (function (app) {
-    var whenAppInitFinished = app.deferred();
-
-    app.on('app_initialized', function () {
-      whenAppInitFinished.resolve();
-    });
-
-    app.init({
-      info: {
-        name: name,
-        version: '0.0.1'
-      },
-      environment: {
-        debug: true,
-        test: 'test'
-      },
-      options: {
-        beforeRender: [whenAppInitFinished.promise()],
-        optionAdded: true
-      }
-    });
-
-  }(app));
+  app.init({environment: {test: 'test'}});
 
   test('Tinyapp core', function () {
     ok(app,
       'app should exist.');
 
-    ok(app.environment && app.environment.debug,
+    equal(app.environment && app.environment.test,
+      'test',
       'Environment should load (triggered by app.js).');
-
-    ok(app.options.optionAdded,
-      'Options should get added to app object.');
   });
 
   test('Namespacing', function () {
@@ -13340,6 +13324,32 @@ app.$(document).ready(function () {
       start();
     });
     app.trigger('a');
+  });
+
+  test('app.events off', function () {
+    var counter = 0,
+      cb = function cb() {
+        counter++;
+      };
+    stop();
+
+    // Attach event listener
+    app.on('b', cb);
+
+    // Fire test event
+    app.trigger('b');
+
+    // Detach event listener
+    app.off('b', cb);
+
+    // Fire another test event
+    app.trigger('b');
+
+    equal(counter, 1,
+      'Events should not trigger callbacks after the ' +
+      'listener has been detached with .off().');
+
+    start();
   });
 
   test('render ready', function () {

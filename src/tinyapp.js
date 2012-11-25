@@ -42,10 +42,14 @@ var $ = require('jquery-browserify'),
     events.emit.apply(events, arguments);
   },
 
-  // create selective mixInto method for these
   on = function on() {
     var args = [].slice.call(arguments);
     events.on.apply(events, arguments);    
+  },
+
+  off = function off() {
+    var args = [].slice.call(arguments);
+    events.off.apply(events, arguments);    
   },
 
   app = {},
@@ -54,7 +58,10 @@ var $ = require('jquery-browserify'),
   init = function init(options) {
     if (options.environment) {
       app.environment = options.environment;
-      app.options = options.options;
+    }
+
+    if (options.beforeRender) {
+      whenRenderReady = options.beforeRender;
     }
 
     // will pass global load and render blockers
@@ -70,12 +77,15 @@ var $ = require('jquery-browserify'),
 
 api = extend(app, {
   '$': $,
+  get: $.get,
+  ajax: $.ajax,
   init: init,
   deferred: deferred,
   register: register,
   events: events,
   trigger: trigger,
   on: on,
+  off: off,
   resolved: resolved,
   rejected: rejected,
   when: when,

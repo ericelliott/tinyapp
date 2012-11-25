@@ -1,5 +1,5 @@
 (function(){
-/*! tinyapp - v0.0.1 - 2012-11-20
+/*! tinyapp - v0.0.3 - 2012-11-25
  * Copyright (c) 2012 Eric Elliott;
  * Licensed under the  license */
 
@@ -13210,10 +13210,14 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
     events.emit.apply(events, arguments);
   },
 
-  // create selective mixInto method for these
   on = function on() {
     var args = [].slice.call(arguments);
     events.on.apply(events, arguments);    
+  },
+
+  off = function off() {
+    var args = [].slice.call(arguments);
+    events.off.apply(events, arguments);    
   },
 
   app = {},
@@ -13222,7 +13226,10 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   init = function init(options) {
     if (options.environment) {
       app.environment = options.environment;
-      app.options = options.options;
+    }
+
+    if (options.beforeRender) {
+      whenRenderReady = options.beforeRender;
     }
 
     // will pass global load and render blockers
@@ -13238,12 +13245,15 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
 
 api = extend(app, {
   '$': $,
+  get: $.get,
+  ajax: $.ajax,
   init: init,
   deferred: deferred,
   register: register,
   events: events,
   trigger: trigger,
   on: on,
+  off: off,
   resolved: resolved,
   rejected: rejected,
   when: when,
