@@ -1,5 +1,5 @@
 (function(){
-/*! tinyapp - v0.1.1 - 2012-11-26
+/*! tinyapp - v0.1.1 - 2012-11-27
  * Copyright (c) 2012 Eric Elliott;
  * Licensed under the  license */
 
@@ -13268,10 +13268,18 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   };
 
 api = extend(app, {
+  init: init,
+  extend: extend,
+  renderReady: function (cb) {
+    renderReady.done.call(renderReady, cb);
+  },
+  loadReady: function (cb) {
+    loadReady.done.call(renderReady, cb);
+  },
+
   '$': $,
   get: $.get,
   ajax: $.ajax,
-  init: init,
   deferred: deferred,
   register: register,
   events: events,
@@ -13280,13 +13288,7 @@ api = extend(app, {
   off: off,
   resolved: resolved,
   rejected: rejected,
-  when: when,
-  renderReady: function (cb) {
-    renderReady.done.call(renderReady, cb);
-  },
-  loadReady: function (cb) {
-    loadReady.done.call(renderReady, cb);
-  }
+  when: when
 });
 
 // Emit render_ready event when renderReady resolves.

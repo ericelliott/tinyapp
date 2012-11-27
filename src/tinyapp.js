@@ -100,10 +100,18 @@ var $ = require('jquery-browserify'),
   };
 
 api = extend(app, {
+  init: init,
+  extend: extend,
+  renderReady: function (cb) {
+    renderReady.done.call(renderReady, cb);
+  },
+  loadReady: function (cb) {
+    loadReady.done.call(renderReady, cb);
+  },
+
   '$': $,
   get: $.get,
   ajax: $.ajax,
-  init: init,
   deferred: deferred,
   register: register,
   events: events,
@@ -112,13 +120,7 @@ api = extend(app, {
   off: off,
   resolved: resolved,
   rejected: rejected,
-  when: when,
-  renderReady: function (cb) {
-    renderReady.done.call(renderReady, cb);
-  },
-  loadReady: function (cb) {
-    loadReady.done.call(renderReady, cb);
-  }
+  when: when
 });
 
 // Emit render_ready event when renderReady resolves.
