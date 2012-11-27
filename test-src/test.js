@@ -46,7 +46,7 @@ app.$(document).ready(function () {
   });
 
   asyncTest('app.on sourceId support', function () {
-    var sourceId = '123';
+    var sourceId = app.cuid();
     app.on('added', sourceId, function (event) {
       ok(true,
         'sourceId support abstracts away relevance checks.');
@@ -54,10 +54,9 @@ app.$(document).ready(function () {
     });
 
     app.trigger('added', {
-      sourceId: '123',
+      sourceId: sourceId,
       detail: 'test'
     });
-
   });
 
   test('app.events off', function () {

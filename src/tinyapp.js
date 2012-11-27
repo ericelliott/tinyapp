@@ -2,6 +2,7 @@ var $ = require('jquery-browserify'),
   EventEmitter2 = require('eventemitter2').EventEmitter2,
   underscore = require('underscore'),
   bb = require('backbone-browserify'),
+  cuid = require('cuid'),
 
   extend = underscore.extend,
   events = new EventEmitter2({
@@ -109,6 +110,7 @@ api = extend(app, {
     loadReady.done.call(renderReady, cb);
   },
 
+  cuid: cuid,
   '$': $,
   get: $.get,
   ajax: $.ajax,
