@@ -45,6 +45,21 @@ app.$(document).ready(function () {
     app.trigger('a');
   });
 
+  asyncTest('app.on sourceId support', function () {
+    var sourceId = '123';
+    app.on('added', sourceId, function (event) {
+      ok(true,
+        'sourceId support abstracts away relevance checks.');
+      start();
+    });
+
+    app.trigger('added', {
+      sourceId: '123',
+      detail: 'test'
+    });
+
+  });
+
   test('app.events off', function () {
     var counter = 0,
       cb = function cb() {

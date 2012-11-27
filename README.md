@@ -2,8 +2,7 @@
 
 Tinyapp is a simple event-driven client-side JavaScript application architecture and module management framework that serves the following needs:
 
-* Namespacing
-* Sandbox
+* Sandbox / Namespacing
 * Environment
 * Lifecycle Hooks
 * Deferreds / Promises
@@ -59,15 +58,17 @@ You'll also need something like browserify and grunt to build your app:
 
 ### Create your first tinyapp module
 
-    var app = require('tinyapp');
+
+Create a namespace:
+
+    var namespace = 'hello';
+
+Include tinyapp:
+
+    var namespace = 'hello',
+      app = require('tinyapp');
 
     // use app as desired
-
-
-And a namespace:
-
-    var app = require('tinyapp'),
-      namespace = 'hello';
 
 
 Provide an API:
@@ -84,7 +85,7 @@ Provide an API:
       };
 
 
-Register your module:
+Export your module:
 
     var namespace = 'hello',
       app = require('tinyapp'),
@@ -97,52 +98,29 @@ Register your module:
         hello: hello
       };
 
-    app.register(namespace, api);
-
-
-Export your api:
-
-    var namespace = 'hello',
-      app = require('tinyapp'),
-      hello: function hello() {
-        return 'hello, world';
-      },
-
-      api = {
-        hello: hello
-      };
-
-    app.register(namespace, api);
     module.exports = api;
 
-Exporting your module makes it available to `require()` in other modules. This will be necessary if you're writing code that must be shared between modules (such as common utilities), or if there is a clear parent module / submodule relationship. In general, modules should know as little as possible about each other in order to minimize coupling.
+
+Exporting your module makes it available to `require()` in other modules.
 
 
-You might be tempted to create shortcuts like:
+It's nice to declare a namespace, because you'll be using a lot of events, and declaring a namespace lets you do things like this:
 
-    var app = require('tinyapp');
+    var eventData = {
+      namespace: namespace,
+      detail: 'my custom event data'
+    };
+    app.trigger('something_happened' eventData);
 
-    app.register('hello', {
-      hello: function () {
-        return 'hello, world';
-      });
+That makes refactoring really easy. You can move code from one module to another without breaking it, or change a module's namespace without impacting any of the module code.
 
-
-However, once you get into the Tinyapp groove, you'll be using a lot of events, and declaring a namespace lets you do things like this:
-
-    app.trigger('some_action.' + namespace, eventData);
-
-Then, if you need to move responsibilities from one module to another, or change the name of your module, you don't have to change any of this code.
-
-Also, declaring your API explicitly makes it immediately clear which parts of your module constitute the exposed interface:
+Declaring your API explicitly makes it immediately clear which parts of your module constitute the exposed interface.
 
       api = {
         hello: hello
       };
 
-In this case, it's just `hello`, but most interfaces will be more complicated. This is also a great clue about what you need to write tests for. If it's not in the API, don't write tests for it. You should be testing that your interface conforms to the contract.
-
-When you declare your API, you're making an implied guarantee that users can safely use the attributes exposed on that API, so you need to write unit tests to be sure that's the case.
+In this case, it's just `hello`, but most interfaces will be more complicated.
 
 
 ### Loading and Rendering
@@ -196,12 +174,12 @@ This allows you to defer render until it's safe to do so. For example, say you w
     app.loadReady(load);
     app.renderReady(render);
 
-    app.register(namespace, api);
+    module.exports = api;
 
 
 Tip: Try not to do anything blocking in your `app.loadReady()` callback. For example, you might want to asynchronously fetch the data that you need to complete your page render, but if you're loading a fairly large collection and you need to iterate over the collection and do some data processing, save the data processing step for `app.renderReady()`, when you're not blocking the page load process.
 
-*You can't safely manipulate the DOM at all in your `.loadReady()` callback.*
+*You can't safely manipulate the DOM in your `.loadReady()` callback.*
 
 
 ## Environment
@@ -210,7 +188,7 @@ Environment is made up of things like image hosting URLs which might vary from o
 
 Environment variables should be passed into your application from your environment configuration, and not hard-coded. Your application should be portable to new hardware or hosts without any changes to your codebase.
 
-It might be tempting to pass a single environment string through and put logic in your code to determine URLs and so on, but that should be done at the configuration level wherever possible. That will make it easier to port your app to new environments.
+It might be tempting to pass a single environment string through and put logic in your code to determine URLs and so on, but that would make your application less portable.
 
 As a general rule of thumb, your app should be ready to open-source at any time, even if you never intend to do it. That mode of thought will help establish the proper separation of environment configuration and secrets from application code.
 
@@ -219,20 +197,20 @@ For more on application configuration, see ["The Twelve-Factor App"](http://www.
 
 ## Options
 
-### `.beforeRender`
+### `beforeRender`
 
-`beforeRender` is a list of application-level promises which all must finish before the render process begins. For example, many apps will need i18n translations to load before modules are allowed to render. By adding an i18n promise to the application's `beforeRender` queue, you can postpone render until the translations are loaded. Using `beforeRender` can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.
+`beforeRender` is a list of application-level promises which all must finish before the render process begins. For example, many apps will need translations to load before modules are allowed to render. By adding an i18n (internationalization) promise to the application's `beforeRender` queue, you can postpone render until the translations are loaded. Using `beforeRender` can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.
 
 You can resolve `beforeRender` promises by listening for an expected event to fire. Inside `app.js`:
 
-    var namespace = 'i18n',
+    var namespace = 'app',
       whenI18nLoaded = app.deferred();
 
     app.on('translations_loaded.' + namespace, function () {
       whenI18nLoaded.resolve();
     });
 
-    app('hello', {
+    app.init({
       beforeRender: [whenI18nLoaded.promise()],
     });
 
@@ -248,7 +226,7 @@ Later:
 
 ### Events
 
-Modules should know as little as possible about each other. To that end, modules should communicate through an app level event bus, supplied by the tinyapp sandbox. You can use `app.on()` to subscribe to events, `app.off` to unsubscribe, and `app.trigger()` to publish.
+Modules should know as little as possible about each other. To that end, modules should communicate through events. There is an app level event bus supplied by the tinyapp sandbox. You can use `app.on()` to subscribe to events, `app.off()` to unsubscribe, and `app.trigger()` to publish.
 
     app.on('a.*', function (data) { 
         console.log(data);
@@ -257,37 +235,30 @@ Modules should know as little as possible about each other. To that end, modules
     // later
     app.trigger('a.b', 'hello, world'); // logs 'hello, world'
 
-Best practice is to get specific about the events you report, and always use your module's namespace to trigger. For example:
+Be specific about the events you report, and namespace your events. For example:
 
-    var namespace = 'videoPlayer',
+    var namespace = 'videoPlayer.view',
 
+      // Capture click events and relay them to the app
+      // event bus.
       bindEvents = function bindEvents() {
-        app.$('#' + namespace).on('click', '#playButton', function (event) {
-          app.trigger('click.' + namespace, event);
+        // Delegate to the view's parent element.
+        app.$('#playerview').on('click.' + namespace,
+            '.play-button', function (event) {
+          event.namespace = 'videoPlayer.view'
+          app.trigger('click', event);
         });
       },
 
+      // Expose the bindEvents method for testing.
       api = {
-          render: bindEvents
+          bindEvents: bindEvents
       };
 
+    // Let Tinyapp call bindEvents when the DOM is ready
+    // to attach events to.
     app.renderReady(bindEvents);
-    app.register(namespace, api);
-
-
-Events support wildcards. This way, you can implement cross-cutting concerns. For example, log every click in your app:
-
-    var namespace = 'clickLogger',
-
-      logData = function logData(event) {
-        // Log to data 
-      },
-
-      api;
-
-    app.on('click.*', logData);
-
-    app.register(namespace, api);
+    module.exports = api;
 
 
 ## Sandbox
@@ -298,7 +269,7 @@ Access libraries and utilities through a canonical interface (a facade), rather 
 ### Included Sandbox API
 
 * `.init()` - Initialize the app.
-* `.register()` - Register your module with the app.
+* `.register()` - Register your module with the app sandbox.
 * `.loadReady()` - Pass in callbacks to run at load time.
 * `.renderReady()` - Pass in callbacks to run at render time.
 * `.events` - Node Event Emitter compatible event emitter.
@@ -316,16 +287,16 @@ Access libraries and utilities through a canonical interface (a facade), rather 
 
 ## Registration
 
-Modules are registered in order to provide a mechanism to easily add cross cutting concerns to the application, as well as enforce an object hierarchy of registered modules. The same namespace cannot be occupied by two different modules.
+Modules that you wish to add to the sandbox (to be used by many other modules) need to be registered. Tinyapp supports deep namespaces. For example:
 
-Tinyapp supports deep namespaces. For example:
-
-    var namespace = 'player.playerView';
+    var namespace = 'i18n.date',
+      api;
 
     // Later...
     app.register(namespace, api);
+    module.exports = api;
 
-This example will create an `app.player` object if it doesn't already exist, and attach the playerView at `app.player.playerView`.
+This example will create an `i18n` object if it doesn't already exist, and attach the `api` object at `app.i18n.date`.
 
 ## Deferred utilities
 

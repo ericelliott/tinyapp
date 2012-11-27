@@ -1,5 +1,5 @@
 (function(){
-/*! tinyapp - v0.0.3 - 2012-11-25
+/*! tinyapp - v0.0.3 - 2012-11-26
  * Copyright (c) 2012 Eric Elliott;
  * Licensed under the  license */
 
@@ -819,8 +819,21 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   },
 
   on = function on() {
-    var args = [].slice.call(arguments);
-    events.on.apply(events, arguments);    
+    var args = [].slice.call(arguments),
+      type = args[0],
+      sourceId = args[1],
+      callback = args[2],
+      context = args[3] || null;
+
+    if (args.length <= 2) {
+      events.on.apply(events, arguments);
+    } else {
+      events.on.call(events, type, function (event) {
+        if (event.sourceId === sourceId) {
+          callback.call(context, event);
+        }
+      });
+    }
   },
 
   off = function off() {
@@ -883,6 +896,10 @@ $(document).ready(function () {
   // support is added.
   renderReady.resolve();
 });
+
+if (typeof window !== 'undefined') {
+  window.tinyapp = api;
+}
 
 module.exports = api;
 });
@@ -13324,6 +13341,23 @@ app.$(document).ready(function () {
       start();
     });
     app.trigger('a');
+  });
+
+  asyncTest('app.on sourceId support', function () {
+    var sourceId = '123';
+    app.on('added',
+      sourceId,
+      function (event) {
+        ok(true,
+          'sourceId support abstracts away relevance checks.');
+        start();
+      });
+
+    app.trigger('added', {
+      sourceId: '123',
+      detail: 'test'
+    });
+
   });
 
   test('app.events off', function () {
