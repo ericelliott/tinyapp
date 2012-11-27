@@ -4,7 +4,13 @@ var $ = require('jquery-browserify'),
   bb = require('backbone-browserify'),
 
   extend = underscore.extend,
-  events = new EventEmitter2(),
+  events = new EventEmitter2({
+    // Support event wildcards for cross-cutting concerns.
+    wildcard: true,
+
+    // Override by calling app.events.setMaxListeners(n).
+    maxlisteners: 1000 
+  }),
   deferred = function deferred() {
     return new $.Deferred();
   },
@@ -61,8 +67,13 @@ var $ = require('jquery-browserify'),
   },
 
   off = function off() {
-    var args = [].slice.call(arguments);
-    events.off.apply(events, arguments);    
+    var args = [].slice.call(arguments),
+      eventType = args[0];
+    if (args.length > 1) {
+      events.off.apply(events, arguments);
+    } else {
+      events.removeAllListeners.call(events, eventType);
+    }    
   },
 
   app = {},

@@ -1,5 +1,5 @@
 (function(){
-/*! tinyapp - v0.0.3 - 2012-11-26
+/*! tinyapp - v0.1.1 - 2012-11-26
  * Copyright (c) 2012 Eric Elliott;
  * Licensed under the  license */
 
@@ -13172,7 +13172,13 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   bb = require('backbone-browserify'),
 
   extend = underscore.extend,
-  events = new EventEmitter2(),
+  events = new EventEmitter2({
+    // Support event wildcards for cross-cutting concerns.
+    wildcard: true,
+
+    // Override by calling app.events.setMaxListeners(n).
+    maxlisteners: 1000 
+  }),
   deferred = function deferred() {
     return new $.Deferred();
   },
@@ -13229,8 +13235,13 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   },
 
   off = function off() {
-    var args = [].slice.call(arguments);
-    events.off.apply(events, arguments);    
+    var args = [].slice.call(arguments),
+      eventType = args[0];
+    if (args.length > 1) {
+      events.off.apply(events, arguments);
+    } else {
+      events.removeAllListeners.call(events, eventType);
+    }    
   },
 
   app = {},

@@ -86,6 +86,41 @@ app.$(document).ready(function () {
     start();
   });
 
+  test('app.events off() with namespaces', function () {
+    var counter = 0,
+      cb = function cb() {
+        counter++;
+      },
+      cb2 = function cb() {
+        counter += 2;
+      },
+      cb3 = function cb() {
+        counter += 5;
+      };
+    stop();
+
+    // Attach event listeners
+    app.on('b.ns1', cb);
+    app.on('b.ns1', cb2);
+    app.on('b.ns2', cb3);
+
+    // Fire test event
+    app.trigger('b.ns1');
+
+    // Detach event listener
+    app.off('b.ns1');
+
+    // Make sure ns1 handlers are gone, ns2 handler remains.
+    app.trigger('b.ns1');
+    app.trigger('b.ns2');
+
+    equal(counter, 8,
+      'Passing a single param into .off() should support ' +
+      'removing by namespace.');
+
+    start();
+  });
+
   test('render ready', function () {
     stop();
     var render = function render(timedout) {
