@@ -1,5 +1,5 @@
 (function(){
-/*! tinyapp - v0.1.2a - 2012-11-27
+/*! tinyapp - v0.1.2 - 2012-11-28
  * Copyright (c) 2012 Eric Elliott;
  * Licensed under the  license */
 
