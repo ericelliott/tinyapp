@@ -81,13 +81,12 @@ var $ = require('jquery-browserify'),
   api,
 
   init = function init(options) {
-    if (options.environment) {
-      app.environment = options.environment;
-    }
-
     if (options.beforeRender) {
       whenRenderReady = options.beforeRender;
     }
+
+    // Add keys to app object
+    extend(app, options);
 
     // will pass global load and render blockers
     // in here eventually.. for now, just resolve.

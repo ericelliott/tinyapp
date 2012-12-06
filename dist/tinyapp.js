@@ -1,5 +1,5 @@
 (function(){
-/*! tinyapp - v0.1.2 - 2012-11-28
+/*! tinyapp - v0.1.2 - 2012-12-06
  * Copyright (c) 2012 Eric Elliott;
  * Licensed under the  license */
 
@@ -13348,13 +13348,12 @@ require.define("/src/tinyapp.js",function(require,module,exports,__dirname,__fil
   api,
 
   init = function init(options) {
-    if (options.environment) {
-      app.environment = options.environment;
-    }
-
     if (options.beforeRender) {
       whenRenderReady = options.beforeRender;
     }
+
+    // Add keys to app object
+    extend(app, options);
 
     // will pass global load and render blockers
     // in here eventually.. for now, just resolve.
