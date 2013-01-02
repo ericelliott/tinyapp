@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Tinyapp : A minimal, modular, client-side application framework." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Tinyapp</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/dilvie/tinyapp">View on GitHub</a>
+
+          <h1 id="project_title">Tinyapp</h1>
+          <h2 id="project_tagline">A minimal, modular, client-side application framework.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/dilvie/tinyapp/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/dilvie/tinyapp/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>Tinyapp - Simple module management.</h1>
+
+<p>Tinyapp is a simple event-driven client-side JavaScript application architecture and module management framework that serves the following needs:</p>
+
+<ul>
+<li>Sandbox / Namespacing</li>
+<li>Environment</li>
+<li>Lifecycle Hooks</li>
+<li>Deferreds / Promises</li>
+</ul><p>Tinyapp is based on Applitude: Simple module management.  <strong>View the slideshow: <a href="https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&amp;start=false&amp;loop=false&amp;delayms=10000">"Introducing Applitude: Simple Module Management"</a></strong></p>
+
+<p><strong>Status</strong> - Developer preview (stick to tested, documented features for best results). <a href="http://travis-ci.org/dilvie/tinyapp"><img src="https://secure.travis-ci.org/dilvie/tinyapp.png" alt="Build Status"></a></p>
+
+<p>The guiding philosophy of Tinyapp is “Less is more.” Tinyapp lays the wiring and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”</p>
+
+<p>Tinyapp was created to illustrate how to implement a client-side JavaScript application architecture for the upcoming book "Programming JavaScript Applications" (O'Reilly).</p>
+
+<h2>Who's Using Tinyapp?</h2>
+
+<ul>
+<li><a href="http://tout.com/">Tout</a></li>
+</ul><h2>Getting started</h2>
+
+<p>Tinyapp uses <code>npm</code> for dependency management and CommonJS to use the dependencies in your modules.</p>
+
+<p>If you don't have node installed, you can download it from <code>http://nodejs.org/download/</code>.</p>
+
+<p>In your project's <code>package.json</code> file, make sure to include tinyapp:</p>
+
+<pre><code>dependencies: {
+  "tinyapp": "*" // use latest version
+}
+</code></pre>
+
+<p>You'll also need something like browserify and grunt to build your app:</p>
+
+<p>"devDependencies": {
+    "grunt-browserify": "~0.1.x",
+    "grunt": "~0.3.x",
+    "traverse": "~0.6.x",
+    "browserify": "~1.15.x"
+  }</p>
+
+<h3>Inside your main file (often, <code>app.js</code>):</h3>
+
+<pre><code>var app = require('tinyapp');
+
+app.init({
+  // Pass your app configuration in here.
+  environment: myEnvironment,
+
+  // A promise that must be resolved before the app
+  // renders.
+  beforeRender: myPromise
+});
+</code></pre>
+
+<h3>Create your first tinyapp module</h3>
+
+<p>Create a namespace:</p>
+
+<pre><code>var namespace = 'hello';
+</code></pre>
+
+<p>Include tinyapp:</p>
+
+<pre><code>var namespace = 'hello',
+  app = require('tinyapp');
+
+// use app as desired
+</code></pre>
+
+<p>Provide an API:</p>
+
+<pre><code>var namespace = 'hello',
+  app = require('tinyapp'),
+
+  hello: function hello() {
+    return 'hello, world';
+  },
+
+  api = {
+    hello: hello
+  };
+</code></pre>
+
+<p>Export your module:</p>
+
+<pre><code>var namespace = 'hello',
+  app = require('tinyapp'),
+
+  hello: function hello() {
+    return 'hello, world';
+  },
+
+  api = {
+    hello: hello
+  };
+
+module.exports = api;
+</code></pre>
+
+<p>Exporting your module makes it available to <code>require()</code> in other modules.</p>
+
+<p>It's nice to declare a namespace, because you'll be using a lot of events, and declaring a namespace lets you do things like this:</p>
+
+<pre><code>var eventData = {
+  namespace: namespace,
+  detail: 'my custom event data'
+};
+app.trigger('something_happened' eventData);
+</code></pre>
+
+<p>That makes refactoring really easy. You can move code from one module to another without breaking it, or change a module's namespace without impacting any of the module code.</p>
+
+<p>Declaring your API explicitly makes it immediately clear which parts of your module constitute the exposed interface.</p>
+
+<pre><code>  api = {
+    hello: hello
+  };
+</code></pre>
+
+<p>In this case, it's just <code>hello</code>, but most interfaces will be more complicated.</p>
+
+<h3>Loading and Rendering</h3>
+
+<p>Module initialization is broken into two phases:</p>
+
+<h4>Load</h4>
+
+<p>The first is the load phase. Tinyapp exposes an <code>app.loadReady()</code> method that takes a callback function that you define in your module. The intention of the <code>app.loadReady()</code> method is to allow you to begin setting up your data models, including firing any asynchronous Ajax load methods that need to happen before you can render your module to the document.</p>
+
+<h4>Render</h4>
+
+<p>Similarly, the <code>app.renderReady()</code> callback is called after:</p>
+
+<ol>
+<li>all <code>.beforeRender</code> callbacks have fired, and</li>
+<li>the DOM is ready to be manipulated</li>
+</ol><p>This allows you to defer render until it's safe to do so. For example, say you want to render Skrillex tour dates from BandsInTown:</p>
+
+<pre><code>var namespace = 'skrillexInfo',
+  app = require('tinyapp'),
+  data,
+  whenLoaded,
+
+  load = function load(url) {
+    var url = url || 
+      'http://api.bandsintown.com/artists/Skrillex.' +
+      'json?api_version=2.0&amp;app_id=YOUR_APP_ID';
+
+    whenLoaded = app.get(url);
+
+    whenLoaded.done(function (response) {
+      data = response;
+    });
+
+    return whenLoaded.promise();
+  },
+
+  render = function render(data) {
+
+  }
+
+  // Expose API for flexibility and unit testing.
+  api = {
+    load: load,
+    render: render
+  };
+
+// Register load and render callbacks.
+app.loadReady(load);
+app.renderReady(render);
+
+module.exports = api;
+</code></pre>
+
+<p>Tip: Try not to do anything blocking in your <code>app.loadReady()</code> callback. For example, you might want to asynchronously fetch the data that you need to complete your page render, but if you're loading a fairly large collection and you need to iterate over the collection and do some data processing, save the data processing step for <code>app.renderReady()</code>, when you're not blocking the page load process.</p>
+
+<p><em>You can't safely manipulate the DOM in your <code>.loadReady()</code> callback.</em></p>
+
+<h2>Environment</h2>
+
+<p>Environment is made up of things like image hosting URLs which might vary from one host or CDN to another. Generally server side environments will also contain passwords, secrets, or tokens for communicating with third party APIs. Since the client-side environment is not secure, you should not pass those secrets through to the client layer.</p>
+
+<p>Environment variables should be passed into your application from your environment configuration, and not hard-coded. Your application should be portable to new hardware or hosts without any changes to your codebase.</p>
+
+<p>It might be tempting to pass a single environment string through and put logic in your code to determine URLs and so on, but that would make your application less portable.</p>
+
+<p>As a general rule of thumb, your app should be ready to open-source at any time, even if you never intend to do it. That mode of thought will help establish the proper separation of environment configuration and secrets from application code.</p>
+
+<p>For more on application configuration, see <a href="http://www.12factor.net/config">"The Twelve-Factor App"</a></p>
+
+<h2>Options</h2>
+
+<h3><code>beforeRender</code></h3>
+
+<p><code>beforeRender</code> is a list of application-level promises which all must finish before the render process begins. For example, many apps will need translations to load before modules are allowed to render. By adding an i18n (internationalization) promise to the application's <code>beforeRender</code> queue, you can postpone render until the translations are loaded. Using <code>beforeRender</code> can prevent tricky race condition bugs from cropping up, and provide a neat solution if you need a guaranteed way to handle tasks before the modules render.</p>
+
+<p>You can resolve <code>beforeRender</code> promises by listening for an expected event to fire. Inside <code>app.js</code>:</p>
+
+<pre><code>var namespace = 'app',
+  whenI18nLoaded = app.deferred();
+
+app.on('translations_loaded.' + namespace, function () {
+  whenI18nLoaded.resolve();
+});
+
+app.init({
+  beforeRender: [whenI18nLoaded.promise()],
+});
+</code></pre>
+
+<p>Later:</p>
+
+<pre><code>whenTranslationsLoaded.done(function () {
+  app.trigger('translations_loaded.' + namespace);
+});
+</code></pre>
+
+<h2>Tinyapp Responsibilities</h2>
+
+<h3>Events</h3>
+
+<p>Modules should know as little as possible about each other. To that end, modules should communicate through events. There is an app level event bus supplied by the tinyapp sandbox. You can use <code>app.on()</code> to subscribe to events, <code>app.off()</code> to unsubscribe, and <code>app.trigger()</code> to publish.</p>
+
+<pre><code>app.on('a.*', function (data) { 
+    console.log(data);
+});
+
+// later
+app.trigger('a.b', 'hello, world'); // logs 'hello, world'
+</code></pre>
+
+<p>Be specific about the events you report, and namespace your events. For example:</p>
+
+<pre><code>var namespace = 'videoPlayer.view',
+
+  // Capture click events and relay them to the app
+  // event bus.
+  bindEvents = function bindEvents() {
+    // Delegate to the view's parent element.
+    app.$('#playerview').on('click.' + namespace,
+        '.play-button', function (event) {
+      event.namespace = 'videoPlayer.view'
+      app.trigger('click', event);
+    });
+  },
+
+  // Expose the bindEvents method for testing.
+  api = {
+      bindEvents: bindEvents
+  };
+
+// Let Tinyapp call bindEvents when the DOM is ready
+// to attach events to.
+app.renderReady(bindEvents);
+module.exports = api;
+</code></pre>
+
+<h2>Sandbox</h2>
+
+<p>Access libraries and utilities through a canonical interface (a facade), rather than calling library code directly. Doing so allows you to modify the implementation, or swap out the library completely with transparency to the application code.</p>
+
+<h3>Included Sandbox API</h3>
+
+<ul>
+<li>
+<code>.init()</code> - Initialize the app.</li>
+<li>
+<code>.register()</code> - Register your module with the app sandbox.</li>
+<li>
+<code>.loadReady()</code> - Pass in callbacks to run at load time.</li>
+<li>
+<code>.renderReady()</code> - Pass in callbacks to run at render time.</li>
+<li>
+<code>.events</code> - Node Event Emitter compatible event emitter.</li>
+<li>
+<code>.on()</code> - Delegates to <code>events.on()</code>.</li>
+<li>
+<code>.off()</code> - Delegates to <code>events.off()</code>.</li>
+<li>
+<code>.trigger()</code> - Delegates to <code>events.emit()</code>.</li>
+<li>
+<code>.$()</code> - A selector engine for dom utilities.</li>
+<li>
+<code>.get()</code> - jQuery compatible Ajax <code>.get()</code>.</li>
+<li>
+<code>.ajax()</code> - jQuery compatible <code>.ajax()</code>.</li>
+<li>
+<code>.when</code> - jQuery compatible .when().</li>
+<li>
+<code>.deferred()</code> - jQuery compatible deferred API.</li>
+<li>
+<code>.resolved</code> - A resolved promise.</li>
+<li>
+<code>.rejected</code> - A rejected promise.</li>
+</ul><h2>Registration</h2>
+
+<p>Modules that you wish to add to the sandbox (to be used by many other modules) need to be registered. Tinyapp supports deep namespaces. For example:</p>
+
+<pre><code>var namespace = 'i18n.date',
+  api;
+
+// Later...
+app.register(namespace, api);
+module.exports = api;
+</code></pre>
+
+<p>This example will create an <code>i18n</code> object if it doesn't already exist, and attach the <code>api</code> object at <code>app.i18n.date</code>.</p>
+
+<h2>Deferred utilities</h2>
+
+<p>Tinyapp relies on promises and deferreds from the jQuery library. 
+Tinyapp exposes a few Deferred utilities, including:</p>
+
+<ul>
+<li>
+<code>.resolved</code> - A resolved promise</li>
+<li>
+<code>.rejected</code> - A rejected promise</li>
+<li>
+<code>.when()</code> - A utility that allows you to run callbacks only after all promises passed to it are resolved.</li>
+</ul><p>These utilities can be helpful for coordinating asynchronous events in your application.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Tinyapp maintained by <a href="https://github.com/dilvie">dilvie</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-37357690-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
