@@ -135,17 +135,6 @@ module.exports = api;
 
 <p>Exporting your module makes it available to <code>require()</code> in other modules.</p>
 
-<p>It's nice to declare a namespace, because you'll be using a lot of events, and declaring a namespace lets you do things like this:</p>
-
-<pre><code>var eventData = {
-  namespace: namespace,
-  detail: 'my custom event data'
-};
-app.trigger('something_happened' eventData);
-</code></pre>
-
-<p>That makes refactoring really easy. You can move code from one module to another without breaking it, or change a module's namespace without impacting any of the module code.</p>
-
 <p>Declaring your API explicitly makes it immediately clear which parts of your module constitute the exposed interface.</p>
 
 <pre><code>  api = {
