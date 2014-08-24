@@ -13,7 +13,8 @@ Tinyapp is based on Applitude: Simple module management.  **View the slideshow: 
 
 The guiding philosophy of Tinyapp is “Less is more.” Tinyapp lays the wiring and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”
 
-Tinyapp was created to illustrate how to implement a client-side JavaScript application architecture for the upcoming book "Programming JavaScript Applications" (O'Reilly).
+Tinyapp was created to illustrate how to implement a client-side JavaScript application architecture for the book ["Programming JavaScript Applications"](learn-javascript.ericelliott.me/programming-javascript-applications/) (O'Reilly).
+
 
 ## Who's Using Tinyapp?
 
