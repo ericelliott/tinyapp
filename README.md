@@ -26,20 +26,17 @@ Tinyapp uses `npm` for dependency management and CommonJS to use the dependencie
 
 If you don't have node installed, you can download it from `http://nodejs.org/download/`.
 
-In your project's `package.json` file, make sure to include tinyapp:
+To install tinyapp for your applicaton:
 
-    dependencies: {
-      "tinyapp": "*" // use latest version
-    }
+```
+$ npm install --save tinyapp
+```
 
 You'll also need something like browserify and grunt to build your app:
 
-  "devDependencies": {
-    "grunt-browserify": "~0.1.x",
-    "grunt": "~0.3.x",
-    "traverse": "~0.6.x",
-    "browserify": "~1.15.x"
-  }
+```
+$ npm install --save-dev grunt grunt-browserify
+```
 
 
 ### Inside your main file (often, `app.js`):
