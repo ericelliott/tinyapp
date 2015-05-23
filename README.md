@@ -9,7 +9,16 @@ Tinyapp is a simple event-driven client-side JavaScript application architecture
 
 Tinyapp is based on Applitude: Simple module management.  **View the slideshow: ["Introducing Applitude: Simple Module Management"](https://docs.google.com/presentation/embed?id=1BQ6s5EzLqenWZX1RCUIgVlJViKzjZAvvxN4UVkQzspo&start=false&loop=false&delayms=10000)**
 
-**Status** - Developer preview (stick to tested, documented features for best results).
+## Status
+
+Deprecated / Unsupported (stick to tested, documented features for best results).
+
+This was written as an example for "Programming JavaScript Applications". It works and it has been used in production, but it is not actively maintained. If you would like to maintain it, file an issue and I'll be happy to make you the maintainer.
+
+For production applications, I recommend [React](https://facebook.github.io/react/).
+
+
+## About Tinyapp
 
 The guiding philosophy of Tinyapp is “Less is more.” Tinyapp lays the wiring and then gets out of the way of your modules. Hence the subtitle, “Simple Module Management.”
 
