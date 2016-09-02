@@ -97,7 +97,7 @@ Export your module:
     var namespace = 'hello',
       app = require('tinyapp'),
 
-      hello: function hello() {
+      hello = function hello() {
         return 'hello, world';
       },
 
