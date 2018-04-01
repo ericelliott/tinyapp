@@ -3,8 +3,7 @@
   "version": "0.1.2",
   "description": "A minimal, modular, client side application framework.",
   "author": {
-    "name": "Eric Elliott",
-    "url": "http://ericleads.com"
+    "name": "Eric Elliott"
   },
   "main": "./src/tinyapp.js",
   "keywords": [
@@ -15,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dilvie/tinyapp.git"
+    "url": "https://github.com/ericelliott/tinyapp.git"
   },
   "directories": {
     "test": "./test",
