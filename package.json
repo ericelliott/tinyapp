@@ -1,6 +1,6 @@
 {
   "name": "tinyapp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A minimal, modular, client side application framework.",
   "author": {
     "name": "Eric Elliott"
